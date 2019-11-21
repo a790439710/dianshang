@@ -3,11 +3,11 @@ package com.xl.streaming
 import java.sql.DriverManager
 import java.util
 
-import com.xl.streaming.bean.clickCountsBean
+import com.xl.streaming.bean.ClickCountsBean
 
 object JDBCUtils {
   //批量更新mysql数据
-  def updateBatch(adUserClickCounts: util.ArrayList[clickCountsBean]): Unit ={
+  def updateBatch(adUserClickCounts: util.ArrayList[ClickCountsBean]): Unit ={
     import scala.collection.JavaConversions._
 
     Class.forName("com.mysql.jdbc.Driver")
@@ -15,10 +15,10 @@ object JDBCUtils {
     connection.setAutoCommit(false)
 
     // 首先对用户广告点击量进行分类，分成待插入的和待更新的
-    val insertAdUserClickCounts = new util.ArrayList[clickCountsBean]
-    val updateAdUserClickCounts = new util.ArrayList[clickCountsBean]
+    val insertAdUserClickCounts = new util.ArrayList[ClickCountsBean]
+    val updateAdUserClickCounts = new util.ArrayList[ClickCountsBean]
 
-    for(clickCount:clickCountsBean <- adUserClickCounts){
+    for(clickCount:ClickCountsBean <- adUserClickCounts){
       val stmt = connection.createStatement()
       val selectSQL = "select count(*) from ad_user_click_count where date='" + clickCount.date + "' " +
         "and userId='" + clickCount.userId + "' and adId='" + clickCount.adId + "'"
@@ -36,7 +36,7 @@ object JDBCUtils {
     }
     //批量插入
     val pstmt = connection.prepareStatement("insert into ad_user_click_count values(?,?,?,?)")
-    for(clickCount:clickCountsBean <- insertAdUserClickCounts){
+    for(clickCount:ClickCountsBean <- insertAdUserClickCounts){
       pstmt.setString(1, clickCount.date)
       pstmt.setString(2, clickCount.userId)
       pstmt.setString(3, clickCount.adId)
@@ -48,7 +48,7 @@ object JDBCUtils {
 
     //批量更新
     val pstmt2 = connection.prepareStatement("update ad_user_click_count set clickCount=clickCount+? where date=? and userId=? and adId=?")
-    for(clickCount:clickCountsBean <- updateAdUserClickCounts){
+    for(clickCount:ClickCountsBean <- updateAdUserClickCounts){
       pstmt2.setLong(1, clickCount.clickCount)
       pstmt2.setString(2, clickCount.date)
       pstmt2.setString(3, clickCount.userId)

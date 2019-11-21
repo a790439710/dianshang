@@ -2,7 +2,7 @@ package com.xl.streaming
 
 import java.util
 
-import com.xl.streaming.bean.clickCountsBean
+import com.xl.streaming.bean.ClickCountsBean
 import kafka.serializer.StringDecoder
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{Row, SparkSession}
@@ -85,14 +85,14 @@ object AdClickRealTimeStatSpark {
     //批量插入数据
     dailyUserAdClickCountDStream.foreachRDD(rdd => {
       rdd.foreachPartition(iterator => {
-        val adUserClickCounts = new util.ArrayList[clickCountsBean]()
+        val adUserClickCounts = new util.ArrayList[ClickCountsBean]()
 
         for(userClickCount <- iterator){
           val date = userClickCount._1.split("_")(0).substring(0,8)
           val userId = userClickCount._1.split("_")(1)
           val adId = userClickCount._1.split("_")(2)
           val clickCount = userClickCount._2
-          val adUserClickCount = new clickCountsBean(date, userId, adId, clickCount)
+          val adUserClickCount = new ClickCountsBean(date, userId, adId, clickCount)
 
           adUserClickCounts.add(adUserClickCount)
         }
@@ -142,7 +142,7 @@ object AdClickRealTimeStatSpark {
     })
 
     //想看效果的可以打印出来在控制台上看效果
-    //aggregatedDStream.print()
+    aggregatedDStream.print()
 
     /*
      *   TODO
@@ -183,7 +183,7 @@ object AdClickRealTimeStatSpark {
     })
 
     //想看效果的可以打印出来在控制台上看效果
-//    rowsDStream.print()
+    rowsDStream.print()
 
     /*
      *   TODO
